@@ -1,0 +1,18 @@
+{
+  "_vendor-3267c44a.js": {
+    "file": "assets/vendor-3267c44a.js"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-72398421.css",
+    "isEntry": true,
+    "src": "resources/css/app.css"
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-011d8d2d.js",
+    "imports": [
+      "_vendor-3267c44a.js"
+    ],
+    "isEntry": true,
+    "src": "resources/js/app.js"
+  }
+}
