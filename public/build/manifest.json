@@ -3,12 +3,12 @@
     "file": "assets/vendor-3267c44a.js"
   },
   "resources/css/app.css": {
-    "file": "assets/app-72398421.css",
+    "file": "assets/app-44f06945.css",
     "isEntry": true,
     "src": "resources/css/app.css"
   },
   "resources/js/app.js": {
-    "file": "assets/app-011d8d2d.js",
+    "file": "assets/app-9858cf41.js",
     "imports": [
       "_vendor-3267c44a.js"
     ],
