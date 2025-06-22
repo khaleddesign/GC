@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Helpers\TailwindHelper;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,5 +25,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Configuration supplémentaire si nécessaire
+        Schema::defaultStringLength(191);
+
     }
 }
