@@ -236,11 +236,10 @@
                                         @endif
                                     </div>
                                 </div>
-
                                 <!-- Actions -->
                                 <div class="flex items-center space-x-2">
                                     <a href="{{ route('chantiers.show', $chantier) }}" 
-                                       class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                                    class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
                                         <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -250,14 +249,30 @@
                                     
                                     @can('update', $chantier)
                                         <a href="{{ route('chantiers.edit', $chantier) }}" 
-                                           class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
-                                           title="Modifier">
+                                        class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                                        title="Modifier">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                                             </svg>
                                         </a>
                                     @endcan
+                                    
+                                    @can('delete', $chantier)
+                                        <!-- NOUVEAU BOUTON SUPPRESSION -->
+                                        <form method="POST" action="{{ route('chantiers.destroy', $chantier) }}" class="inline" onsubmit="return confirm('⚠️ ATTENTION ⚠️\n\nÊtes-vous sûr de vouloir supprimer ce chantier ?\n\n• Toutes les étapes seront supprimées\n• Tous les documents seront supprimés\n• Tous les commentaires seront supprimés\n• Cette action est irréversible\n\nTaper « SUPPRIMER » pour confirmer')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" 
+                                                    class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" 
+                                                    title="Supprimer définitivement">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    @endcan
                                 </div>
+                                 
                             </div>
                         </div>
                     </div>
@@ -346,6 +361,162 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+<script>
+// Variables globales pour les étapes
+let etapeEnCours = null;
+
+// Fonction pour modifier une étape
+function modifierEtape(etapeData) {
+    console.log('Modification étape:', etapeData);
+    etapeEnCours = etapeData;
+    
+    const form = document.getElementById('form-modifier-etape');
+    form.action = /chantiers/{{ $chantier->id }}/etapes/${etapeData.id};
+    
+    // Remplir les champs
+    document.getElementById('edit_nom').value = etapeData.nom || '';
+    document.getElementById('edit_ordre').value = etapeData.ordre || '';
+    document.getElementById('edit_description').value = etapeData.description || '';
+    document.getElementById('edit_date_debut').value = etapeData.date_debut || '';
+    document.getElementById('edit_date_fin_prevue').value = etapeData.date_fin_prevue || '';
+    document.getElementById('edit_date_fin_effective').value = etapeData.date_fin_effective || '';
+    document.getElementById('edit_pourcentage').value = etapeData.pourcentage || 0;
+    document.getElementById('edit_terminee').checked = etapeData.terminee || false;
+    document.getElementById('edit_notes').value = etapeData.notes || '';
+    
+    // Mettre à jour l'affichage du pourcentage
+    document.getElementById('edit_pourcentage_value').textContent = (etapeData.pourcentage || 0) + '%';
+    
+    openModal('modal-modifier-etape');
+}
+
+// Fonction pour modifier rapidement la progression
+function modifierProgressionEtape(etapeId, currentProgress) {
+    etapeEnCours = { id: etapeId };
+    
+    const form = document.getElementById('form-progression-etape');
+    form.action = /chantiers/{{ $chantier->id }}/etapes/${etapeId}/progress;
+    
+    document.getElementById('quick_pourcentage').value = currentProgress;
+    document.getElementById('quick_pourcentage_value').textContent = currentProgress + '%';
+    
+    openModal('modal-progression-etape');
+}
+
+// Fonction pour définir un pourcentage rapide
+function setProgression(value) {
+    document.getElementById('quick_pourcentage').value = value;
+    document.getElementById('quick_pourcentage_value').textContent = value + '%';
+}
+
+// Événement pour checkbox "terminée"
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('edit_terminee')?.addEventListener('change', function() {
+        if (this.checked) {
+            document.getElementById('edit_pourcentage').value = 100;
+            document.getElementById('edit_pourcentage_value').textContent = '100%';
+        }
+    });
+});
+
+console.log('JavaScript étapes chargé avec succès');
+</script>
+
+<script>
+// Fonction de confirmation de suppression sécurisée
+function confirmerSuppressionChantier(chantierTitre) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4';
+    modal.innerHTML = `
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+                <svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+            </div>
+            
+            <h3 class="text-lg font-bold text-gray-900 text-center mb-2">
+                Supprimer le chantier
+            </h3>
+            
+            <p class="text-sm text-gray-600 text-center mb-4">
+                Vous êtes sur le point de supprimer définitivement le chantier :
+            </p>
+            
+            <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                <p class="font-medium text-gray-900 text-center">${chantierTitre}</p>
+            </div>
+            
+            <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                <div class="flex">
+                    <svg class="flex-shrink-0 h-5 w-5 text-red-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div class="ml-3">
+                        <h4 class="text-sm font-medium text-red-800">Cette action est irréversible</h4>
+                        <div class="text-sm text-red-700 mt-1">
+                            <ul class="list-disc pl-4 space-y-1">
+                                <li>Toutes les étapes seront supprimées</li>
+                                <li>Tous les documents seront supprimés</li>
+                                <li>Tous les commentaires seront supprimés</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Tapez "SUPPRIMER" pour confirmer :
+                </label>
+                <input type="text" 
+                       id="confirmation-input" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                       placeholder="SUPPRIMER">
+            </div>
+            
+            <div class="flex space-x-3">
+                <button onclick="this.closest('div').remove(); document.body.style.overflow = 'auto'" 
+                        class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg">
+                    Annuler
+                </button>
+                <button id="confirm-delete-btn" 
+                        disabled
+                        onclick="if(document.getElementById('confirmation-input').value === 'SUPPRIMER') { this.closest('div').remove(); return true; } return false;"
+                        class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:bg-gray-300 rounded-lg">
+                    Supprimer définitivement
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    const input = modal.querySelector('#confirmation-input');
+    const confirmBtn = modal.querySelector('#confirm-delete-btn');
+    
+    input.focus();
+    
+    input.addEventListener('input', function() {
+        confirmBtn.disabled = this.value !== 'SUPPRIMER';
+    });
+    
+    confirmBtn.addEventListener('click', function() {
+        if (input.value === 'SUPPRIMER') {
+            modal.remove();
+            document.body.style.overflow = 'auto';
+            // Soumettre le formulaire parent
+            this.closest('form').submit();
+        }
+    });
+    
+    return false; // Empêche la soumission immédiate
+}
+</script>
+
+
 @endpush
 
 @push('styles')

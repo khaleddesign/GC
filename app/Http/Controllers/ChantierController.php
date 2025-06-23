@@ -32,9 +32,9 @@ class ChantierController extends Controller
         // Filtres de recherche
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('titre', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -53,7 +53,7 @@ class ChantierController extends Controller
         // Tri
         $orderBy = $request->get('order_by', 'created_at');
         $orderDirection = $request->get('order_direction', 'desc');
-        
+
         if (in_array($orderBy, ['created_at', 'titre', 'statut', 'date_debut', 'date_fin_prevue'])) {
             $query->orderBy($orderBy, $orderDirection);
         }
@@ -135,7 +135,7 @@ class ChantierController extends Controller
         );
 
         return redirect()->route('chantiers.index')
-                        ->with('success', 'Chantier créé avec succès.');
+            ->with('success', 'Chantier créé avec succès.');
     }
 
     /**
@@ -148,13 +148,13 @@ class ChantierController extends Controller
         $chantier->load([
             'client',
             'commercial',
-            'etapes' => function($query) {
+            'etapes' => function ($query) {
                 $query->orderBy('ordre');
             },
-            'documents' => function($query) {
+            'documents' => function ($query) {
                 $query->orderBy('created_at', 'desc');
             },
-            'commentaires' => function($query) {
+            'commentaires' => function ($query) {
                 $query->with('user')->orderBy('created_at', 'desc');
             }
         ]);
@@ -219,7 +219,7 @@ class ChantierController extends Controller
         }
 
         return redirect()->route('chantiers.show', $chantier)
-                        ->with('success', 'Chantier modifié avec succès.');
+            ->with('success', 'Chantier modifié avec succès.');
     }
 
     /**
@@ -233,7 +233,7 @@ class ChantierController extends Controller
         $chantier->delete();
 
         return redirect()->route('chantiers.index')
-                        ->with('success', "Chantier '{$titre}' supprimé avec succès.");
+            ->with('success', "Chantier '{$titre}' supprimé avec succès.");
     }
 
     /**
@@ -265,7 +265,7 @@ class ChantierController extends Controller
                 'title' => $chantier->titre,
                 'start' => $chantier->date_debut->format('Y-m-d'),
                 'end' => $chantier->date_fin_prevue ? $chantier->date_fin_prevue->format('Y-m-d') : null,
-                'color' => match($chantier->statut) {
+                'color' => match ($chantier->statut) {
                     'planifie' => '#6c757d',
                     'en_cours' => '#007bff',
                     'termine' => '#28a745',
@@ -278,14 +278,14 @@ class ChantierController extends Controller
         // Ajouter les données nécessaires pour les formulaires de la vue
         $clients = collect();
         $commerciaux = collect();
-        
+
         // Si l'utilisateur peut créer des chantiers, charger les listes
         if ($user->isAdmin() || $user->isCommercial()) {
             $clients = User::where('role', 'client')
                 ->where('active', true)
                 ->orderBy('name')
                 ->get();
-            
+
             $commerciaux = User::where('role', 'commercial')
                 ->where('active', true)
                 ->orderBy('name')
@@ -298,7 +298,7 @@ class ChantierController extends Controller
             'en_cours' => $chantiers->where('statut', 'en_cours')->count(),
             'planifies' => $chantiers->where('statut', 'planifie')->count(),
             'termines' => $chantiers->where('statut', 'termine')->count(),
-            'en_retard' => $chantiers->filter(function($chantier) {
+            'en_retard' => $chantiers->filter(function ($chantier) {
                 return $chantier->isEnRetard();
             })->count()
         ];
@@ -313,16 +313,16 @@ class ChantierController extends Controller
     {
         $query = $request->get('q', '');
         $user = Auth::user();
-        
+
         $chantiersQuery = Chantier::query();
-        
+
         // Filtrage selon le rôle
         if ($user->isCommercial()) {
             $chantiersQuery->where('commercial_id', $user->id);
         } elseif ($user->isClient()) {
             $chantiersQuery->where('client_id', $user->id);
         }
-        
+
         $chantiers = $chantiersQuery->where(function ($q) use ($query) {
             $q->where('titre', 'like', "%{$query}%")
                 ->orWhere('description', 'like', "%{$query}%");
@@ -341,7 +341,7 @@ class ChantierController extends Controller
                     'url' => route('chantiers.show', $chantier),
                 ];
             });
-        
+
         return response()->json($chantiers);
     }
 
@@ -363,9 +363,9 @@ class ChantierController extends Controller
         // 🔍 Application des mêmes filtres que dans la méthode index
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('titre', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -384,7 +384,7 @@ class ChantierController extends Controller
         // 📊 Appliquer le même tri que dans l'index
         $orderBy = $request->get('order_by', 'created_at');
         $orderDirection = $request->get('order_direction', 'desc');
-        
+
         if (in_array($orderBy, ['created_at', 'titre', 'statut', 'date_debut', 'date_fin_prevue'])) {
             $query->orderBy($orderBy, $orderDirection);
         }
@@ -394,7 +394,7 @@ class ChantierController extends Controller
 
         // 📝 Générer un nom de fichier informatif
         $filename = 'chantiers_export_' . date('Y-m-d_H-i-s');
-        
+
         // Ajouter des informations sur les filtres dans le nom du fichier
         if ($request->filled('statut')) {
             $filename .= '_' . $request->statut;
@@ -402,30 +402,38 @@ class ChantierController extends Controller
         if ($request->filled('search')) {
             $filename .= '_' . \Str::slug($request->search);
         }
-        
+
         $filename .= '.csv';
-        
+
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
             'Cache-Control' => 'no-cache, must-revalidate',
         ];
 
-        $callback = function() use ($chantiers, $request) {
+        $callback = function () use ($chantiers, $request) {
             // 🔧 Ajout du BOM UTF-8 pour Excel
             echo "\xEF\xBB\xBF";
-            
+
             $file = fopen('php://output', 'w');
-            
+
             // 📋 En-têtes du CSV
             $headers = [
-                'Titre', 'Description', 'Client', 'Commercial', 'Statut', 
-                'Date début', 'Date fin prévue', 'Budget (€)', 'Avancement (%)', 
-                'Créé le', 'Modifié le'
+                'Titre',
+                'Description',
+                'Client',
+                'Commercial',
+                'Statut',
+                'Date début',
+                'Date fin prévue',
+                'Budget (€)',
+                'Avancement (%)',
+                'Créé le',
+                'Modifié le'
             ];
-            
+
             fputcsv($file, $headers, ';'); // Utilisation du point-virgule pour Excel français
-            
+
             // 📊 Ligne de résumé des filtres (optionnelle)
             if ($request->hasAny(['search', 'statut', 'commercial_id', 'client_id'])) {
                 $filtresAppliques = [];
@@ -443,14 +451,14 @@ class ChantierController extends Controller
                     $client = \App\Models\User::find($request->client_id);
                     $filtresAppliques[] = "Client: " . ($client ? $client->name : 'Inconnu');
                 }
-                
+
                 // Ligne de commentaire avec les filtres
                 fputcsv($file, ["# Filtres appliqués: " . implode(', ', $filtresAppliques)], ';');
                 fputcsv($file, ["# Nombre de résultats: " . $chantiers->count()], ';');
                 fputcsv($file, ["# Exporté le: " . now()->format('d/m/Y à H:i:s')], ';');
                 fputcsv($file, [], ';'); // Ligne vide
             }
-            
+
             // 📋 Données des chantiers
             foreach ($chantiers as $chantier) {
                 fputcsv($file, [
@@ -467,10 +475,30 @@ class ChantierController extends Controller
                     $chantier->updated_at->format('d/m/Y H:i'),
                 ], ';');
             }
-            
+
             fclose($file);
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+
+    /**
+     * Afficher la page de gestion des étapes d'un chantier
+     */
+    public function etapes(Chantier $chantier)
+    {
+        $this->authorize('view', $chantier);
+
+        // Charger les relations nécessaires
+        $chantier->load([
+            'client',
+            'commercial',
+            'etapes' => function ($query) {
+                $query->orderBy('ordre');
+            }
+        ]);
+
+        return view('chantiers.etapes', compact('chantier'));
     }
 }
