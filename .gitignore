@@ -9,7 +9,7 @@
 /node_modules/
 
 # Dossiers et fichiers générés
-/public/
+/public/build/
 /public/dist/
 /storage/*.key
 /storage/*.sqlite

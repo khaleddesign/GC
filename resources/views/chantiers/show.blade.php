@@ -135,7 +135,7 @@
                     <div class="flex space-x-2">
                         <!-- Photo principale (format 16:9) -->
                         <div class="w-full md:w-2/3 relative cursor-pointer" onclick="ouvrirLightbox(0)">
-                            <img src="{{ $chantier->photo_couverture->thumbnail_url }}" 
+                            <img src="{{ asset($chantier->photo_couverture->thumbnail_url) }}" 
                                 alt="Photo principale" 
                                 class="w-full h-32 object-cover rounded-lg">
                         </div>
@@ -144,7 +144,7 @@
                         <div class="w-full md:w-1/3 grid grid-cols-2 grid-rows-2 gap-2">
                             @foreach($chantier->photos_recentes->skip(1)->take(3) as $index => $photo)
                                 <div class="relative cursor-pointer" onclick="ouvrirLightbox({{ $index + 1 }})">
-                                    <img src="{{ $photo->thumbnail_url }}" 
+                                    <img src="{{ asset($photo->thumbnail_url) }}" 
                                         alt="Photo {{ $index + 2 }}" 
                                         class="w-full h-12 object-cover rounded-lg">
                                 </div>
