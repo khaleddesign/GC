@@ -32,3 +32,30 @@ Thumbs.db
 
 # Si tu utilises SQLite pour le dev, ignore la BDD
 /database/database.sqlite
+
+# Laravel
+/vendor
+/node_modules
+/public/storage
+/storage/*.key
+.env
+.phpunit.result.cache
+Homestead.yaml
+Homestead.json
+/.vagrant
+/.idea
+/.phpunit.result.cache
+/.DS_Store
+
+# Ignorer les logs et cache
+/storage/logs
+/storage/framework/cache
+/storage/framework/sessions
+/storage/framework/views
+
+# Composer
+composer.lock
+
+# NPM
+package-lock.json
+yarn.lock
